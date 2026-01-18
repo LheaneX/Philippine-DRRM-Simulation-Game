@@ -148,7 +148,7 @@ export function GamePhase3({ preparedness, response, onComplete }: GamePhase3Pro
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <h3 className="font-bold mb-3">Assessment Results: Barangay San Roque</h3>
+                  <h3 className="font-bold mb-3">Assessment Results: Quezon Province</h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div className="bg-white p-3 rounded">

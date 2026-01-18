@@ -89,7 +89,7 @@ const GO_BAG_ITEMS = [
 ];
 
 const EVACUATION_CENTERS = [
-  { id: 'school', name: 'Barangay Elementary School', capacity: 500, readiness: 'Good', points: 10, icon: School, color: 'bg-blue-100 text-blue-600' },
+  { id: 'school', name: 'Kiling Elementary School', capacity: 500, readiness: 'Good', points: 10, icon: School, color: 'bg-blue-100 text-blue-600' },
   { id: 'hall', name: 'Barangay Hall & Covered Court', capacity: 300, readiness: 'Fair', points: 8, icon: Building2, color: 'bg-orange-100 text-orange-600' },
   { id: 'church', name: 'Local Church/Chapel', capacity: 200, readiness: 'Good', points: 9, icon: Church, color: 'bg-purple-100 text-purple-600' },
   { id: 'gym', name: 'Municipal Gymnasium', capacity: 800, readiness: 'Excellent', points: 10, icon: Warehouse, color: 'bg-green-100 text-green-600' }
@@ -388,7 +388,7 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h3 className="font-bold mb-3">Barangay Profile: Barangay San Roque</h3>
+                    <h3 className="font-bold mb-3">Location Profile: Quezon Province</h3>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p><strong>Population:</strong> 3,500 residents</p>

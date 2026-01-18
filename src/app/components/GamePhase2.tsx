@@ -120,7 +120,7 @@ const DISASTER_EVENTS = {
           correct: true
         },
         {
-          action: 'Relocate all patients to the Barangay Hall',
+          action: 'Relocate all patients to Kiling Elementary School',
           outcome: 'Incorrect. Moving critical patients during a storm is extremely dangerous and facilities are inadequate.',
           correct: false
         }
