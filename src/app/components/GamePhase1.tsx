@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Progress } from '@/app/components/ui/progress';
+
 import { Badge } from '@/app/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
-import { 
-  AlertCircle, CheckCircle2, Package, MapPin, Users, DollarSign, 
-  GraduationCap, AlertTriangle, Cloud, Activity
+import {
+  AlertCircle, CheckCircle2, Package, MapPin, Users, DollarSign,
+  GraduationCap, AlertTriangle, Cloud, Activity, Flashlight, Radio,
+  Utensils, Droplets, BriefcaseMedical, FileText, Banknote, Shirt,
+  Tent, Phone, Wrench, Scissors, Ticket, School, Church, Building2,
+  Warehouse
 } from 'lucide-react';
-import { useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
 
@@ -29,83 +31,86 @@ export interface PreparednessData {
 
 const DISASTER_ALERTS = {
   typhoon: {
-    agency: 'PAGASA',
-    signal: 'Tropical Cyclone Warning Signal #4',
-    advisory: 'Super Typhoon "Maring" is approaching with winds of 185 km/h. Storm surge of 2-3 meters expected in coastal barangays. Heavy to intense rainfall expected.',
+    agency: 'PAGASA (Weather)',
+    signal: 'Signal #4 (Very Strong Typhoon)',
+    advisory: 'A Super Typhoon is coming! Winds are very strong. The sea might rise (storm surge). Heavy rain is falling.',
     color: 'bg-red-100 border-red-500 text-red-900'
   },
   earthquake: {
-    agency: 'PHIVOLCS',
-    signal: 'Earthquake Advisory',
-    advisory: 'Magnitude 7.2 earthquake detected. Epicenter: West Valley Fault, Metro Manila. Strong shaking felt. Aftershocks expected. Tsunami threat being assessed.',
+    agency: 'PHIVOLCS (Quakes)',
+    signal: 'Earthquake Alert',
+    advisory: 'A very strong earthquake happened! Buildings might shake. Watch out for aftershocks (smaller shakes).',
     color: 'bg-orange-100 border-orange-500 text-orange-900'
   },
   flood: {
-    agency: 'PAGASA',
+    agency: 'PAGASA (Weather)',
     signal: 'Red Rainfall Warning',
-    advisory: 'Heavy to intense rainfall (15-30 mm/hour) observed. Serious flooding expected in low-lying areas. Monsoon enhanced by tropical cyclone.',
+    advisory: 'Too much rain! Floods are rising fast. Low places will be underwater.',
     color: 'bg-blue-100 border-blue-500 text-blue-900'
   },
   volcano: {
-    agency: 'PHIVOLCS',
+    agency: 'PHIVOLCS (Volcanoes)',
     signal: 'Alert Level 4',
-    advisory: 'Taal Volcano showing signs of hazardous eruption within hours to days. Volcanic earthquakes detected. Base surges and pyroclastic flows possible.',
+    advisory: 'The volcano might erupt (explode) soon! Dangerous ash and lava are coming.',
     color: 'bg-orange-100 border-orange-500 text-orange-900'
   },
   landslide: {
     agency: 'PAGASA & MGB',
     signal: 'Landslide Warning',
-    advisory: 'Continuous heavy rainfall in mountainous areas. Ground saturation critical. High risk of landslides and debris flows.',
+    advisory: 'It rained too much on the mountains. The soil is soft and might slide down. Dangerous!',
     color: 'bg-amber-100 border-amber-500 text-amber-900'
   },
   fire: {
-    agency: 'BFP',
-    signal: 'Fire Incident Alert',
-    advisory: 'Multiple structure fire reported in densely populated barangay. Strong winds spreading fire rapidly. Immediate evacuation required.',
+    agency: 'BFP (Firefighters)',
+    signal: 'Fire Alarm',
+    advisory: 'Big fire in the village! The wind is spreading the fire. Everyone must leave now!',
     color: 'bg-red-100 border-red-500 text-red-900'
   }
 };
 
 const GO_BAG_ITEMS = [
-  { id: 'water', name: 'Bottled Water (3L per person)', category: 'essential', points: 10 },
-  { id: 'food', name: 'Ready-to-eat Food (3-day supply)', category: 'essential', points: 10 },
-  { id: 'firstaid', name: 'First Aid Kit', category: 'essential', points: 10 },
-  { id: 'flashlight', name: 'Flashlight & Batteries', category: 'essential', points: 8 },
-  { id: 'radio', name: 'Battery-powered Radio', category: 'essential', points: 8 },
-  { id: 'whistle', name: 'Emergency Whistle', category: 'essential', points: 6 },
-  { id: 'documents', name: 'Important Documents (in waterproof bag)', category: 'essential', points: 10 },
-  { id: 'cash', name: 'Emergency Cash', category: 'essential', points: 8 },
-  { id: 'medicine', name: 'Personal Medicines', category: 'essential', points: 9 },
-  { id: 'clothes', name: 'Extra Clothes', category: 'comfort', points: 5 },
-  { id: 'blanket', name: 'Blanket/Mat', category: 'comfort', points: 5 },
-  { id: 'toiletries', name: 'Hygiene Items', category: 'comfort', points: 6 },
-  { id: 'phone', name: 'Phone & Powerbank', category: 'communication', points: 9 },
-  { id: 'rope', name: 'Rope/Cord', category: 'tools', points: 4 },
-  { id: 'knife', name: 'Multi-tool/Swiss Knife', category: 'tools', points: 4 },
-  { id: 'mask', name: 'Face Masks', category: 'health', points: 7 },
-  { id: 'alcohol', name: 'Alcohol/Sanitizer', category: 'health', points: 6 }
+  { id: 'water', name: 'Bottled Water (3L per person)', category: 'essential', points: 10, icon: Droplets },
+  { id: 'food', name: 'Ready-to-eat Food (3-day supply)', category: 'essential', points: 10, icon: Utensils },
+  { id: 'firstaid', name: 'First Aid Kit', category: 'essential', points: 10, icon: BriefcaseMedical },
+  { id: 'flashlight', name: 'Flashlight & Batteries', category: 'essential', points: 8, icon: Flashlight },
+  { id: 'radio', name: 'Battery-powered Radio', category: 'essential', points: 8, icon: Radio },
+  { id: 'whistle', name: 'Emergency Whistle', category: 'essential', points: 6, icon: AlertCircle },
+  { id: 'documents', name: 'Important Documents (Waterproof)', category: 'essential', points: 10, icon: FileText },
+  { id: 'cash', name: 'Emergency Cash', category: 'essential', points: 8, icon: Banknote },
+  { id: 'medicine', name: 'Personal Medicines', category: 'essential', points: 9, icon: BriefcaseMedical },
+  { id: 'clothes', name: 'Extra Clothes', category: 'comfort', points: 5, icon: Shirt },
+  { id: 'blanket', name: 'Blanket/Mat', category: 'comfort', points: 5, icon: Tent },
+  { id: 'toiletries', name: 'Hygiene Items', category: 'comfort', points: 6, icon: CheckCircle2 },
+  { id: 'phone', name: 'Phone & Powerbank', category: 'communication', points: 9, icon: Phone },
+  { id: 'rope', name: 'Rope/Cord', category: 'tools', points: 4, icon: Wrench },
+  { id: 'knife', name: 'Multi-tool/Swiss Knife', category: 'tools', points: 4, icon: Scissors },
+  { id: 'mask', name: 'Face Masks', category: 'health', points: 7, icon: Ticket }, // Using Ticket as generic rect shape or Mask if available? lucide doesn't have Mask. Using Ticket as placeholder or just generic
+  { id: 'alcohol', name: 'Alcohol/Sanitizer', category: 'health', points: 6, icon: Droplets }
 ];
 
 const EVACUATION_CENTERS = [
-  { id: 'school', name: 'Barangay Elementary School', capacity: 500, readiness: 'Good', points: 10 },
-  { id: 'hall', name: 'Barangay Hall & Covered Court', capacity: 300, readiness: 'Fair', points: 8 },
-  { id: 'church', name: 'Local Church/Chapel', capacity: 200, readiness: 'Good', points: 9 },
-  { id: 'gym', name: 'Municipal Gymnasium', capacity: 800, readiness: 'Excellent', points: 10 }
+  { id: 'school', name: 'Barangay Elementary School', capacity: 500, readiness: 'Good', points: 10, icon: School, color: 'bg-blue-100 text-blue-600' },
+  { id: 'hall', name: 'Barangay Hall & Covered Court', capacity: 300, readiness: 'Fair', points: 8, icon: Building2, color: 'bg-orange-100 text-orange-600' },
+  { id: 'church', name: 'Local Church/Chapel', capacity: 200, readiness: 'Good', points: 9, icon: Church, color: 'bg-purple-100 text-purple-600' },
+  { id: 'gym', name: 'Municipal Gymnasium', capacity: 800, readiness: 'Excellent', points: 10, icon: Warehouse, color: 'bg-green-100 text-green-600' }
 ];
 
-function DraggableItem({ item }: { item: typeof GO_BAG_ITEMS[0] }) {
+function DraggableItem({ item, onSelect }: { item: typeof GO_BAG_ITEMS[0], onSelect: () => void }) {
+  const Icon = item.icon;
   return (
     <div
       draggable
       onDragStart={(e) => e.dataTransfer.setData('itemId', item.id)}
-      className="bg-white p-3 rounded-lg border-2 border-gray-300 cursor-move hover:border-blue-500 hover:shadow-md transition-all"
+      onDoubleClick={onSelect}
+      className="bg-white p-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] cursor-move hover:translate-y-1 hover:shadow-none transition-all group select-none active:scale-95 flex items-center gap-3"
+      title="Drag or Double Tap to Add"
     >
-      <div className="flex items-center gap-2">
-        <Package className="w-5 h-5 text-blue-600" />
-        <div className="flex-1">
-          <p className="font-semibold text-sm">{item.name}</p>
-          <p className="text-xs text-gray-500 capitalize">{item.category}</p>
-        </div>
+      <div className="p-2 bg-blue-100 border-2 border-black rounded-lg">
+        <Icon className="w-6 h-6 text-black" />
+      </div>
+      <div className="flex-1">
+        <p className="font-bold text-sm text-black">{item.name}</p>
+        <p className="text-xs text-gray-600 font-bold uppercase tracking-wide">{item.category}</p>
       </div>
     </div>
   );
@@ -131,39 +136,49 @@ function GoBagDropZone({ items, onDrop }: { items: string[], onDrop: (itemId: st
     <div
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      className="min-h-[300px] bg-gradient-to-br from-blue-50 to-green-50 border-4 border-dashed border-blue-400 rounded-xl p-6"
+      className="min-h-[400px] bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] rounded-3xl p-6 relative overflow-hidden"
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-lg flex items-center gap-2">
-          <Package className="w-6 h-6 text-blue-600" />
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '20px 20px' }}>
+      </div>
+
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <h3 className="font-black text-xl flex items-center gap-2 uppercase tracking-wide">
+          <Package className="w-6 h-6" />
           Your Go Bag
         </h3>
         <div className="text-right">
-          <p className="text-sm text-gray-600">Items: {items.length}/12</p>
-          <p className="text-lg font-bold text-blue-600">Score: {totalPoints}/100</p>
+          <Badge variant="outline" className="text-sm font-bold bg-blue-200 text-black border-2 border-black mb-1">
+            {items.length}/12 Items
+          </Badge>
+          <p className="text-2xl font-black text-black">
+            {totalPoints}<span className="text-sm text-gray-500 ml-1">/100 PTS</span>
+          </p>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <Package className="w-16 h-16 mx-auto mb-4 opacity-30" />
-          <p className="font-semibold">Drag items here to build your Go Bag</p>
-          <p className="text-sm">Essential items for emergency evacuation</p>
+        <div className="text-center py-20 border-4 border-dashed border-gray-300 rounded-2xl bg-gray-50/50">
+          <Package className="w-20 h-20 mx-auto mb-4 text-gray-300 transform -rotate-12" />
+          <p className="font-bold text-xl text-gray-400">BAG IS EMPTY</p>
+          <p className="text-sm text-gray-400 font-medium">Drag items here or Double Tap to add</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-10">
           {itemObjects.map((item) => item && (
-            <div key={item.id} className="bg-white p-3 rounded-lg border-2 border-green-400 flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
-              <div className="flex-1">
-                <p className="font-semibold text-sm">{item.name}</p>
-                <p className="text-xs text-gray-500">+{item.points} points</p>
+            <div key={item.id} className="bg-green-100 p-2 rounded-lg border-2 border-black flex items-center gap-2 shadow-[2px_2px_0px_0px_#000]">
+              <CheckCircle2 className="w-5 h-5 text-black" />
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm truncate">{item.name}</p>
+                <p className="text-xs font-bold text-green-700">+{item.points} pts</p>
               </div>
               <button
                 onClick={() => onDrop(item.id)}
-                className="text-red-500 hover:text-red-700 text-xs"
+                className="w-6 h-6 flex items-center justify-center bg-red-400 border-2 border-black rounded hover:bg-red-500 transition-colors"
+                title="Remove"
               >
-                Remove
+                <span className="text-black font-bold text-xs">X</span>
               </button>
             </div>
           ))}
@@ -171,7 +186,7 @@ function GoBagDropZone({ items, onDrop }: { items: string[], onDrop: (itemId: st
       )}
 
       {totalPoints >= 80 && (
-        <div className="mt-4 bg-green-100 p-3 rounded-lg border border-green-500 text-green-800 text-sm">
+        <div className="mt-4 bg-green-100 p-3 rounded-lg border border-green-500 text-green-800 text-sm font-bold border-2 border-black shadow-[2px_2px_0px_0px_#000]">
           <CheckCircle2 className="w-4 h-4 inline mr-2" />
           Excellent preparation! Your Go Bag meets NDRRMC standards.
         </div>
@@ -201,7 +216,7 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
 
   const calculatePreparednessScore = () => {
     let score = 0;
-    
+
     // Go Bag (40 points max)
     const goBagScore = goBagItems.reduce((sum, id) => {
       const item = GO_BAG_ITEMS.find(i => i.id === id);
@@ -244,7 +259,7 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
     });
   };
 
-  const isReadyToProceed = 
+  const isReadyToProceed =
     goBagItems.length >= 5 &&
     evacuationCenter !== '' &&
     earlyWarningUnderstood &&
@@ -252,44 +267,49 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-6">
+      <div className="min-h-screen bg-[#AEE2FF] p-6 font-['Fredoka']" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}>
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="mb-8 bg-white border-4 border-black rounded-3xl p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                <h1 className="text-3xl font-black text-black mb-1">
                   PHASE 1: BEFORE THE DISASTER
                 </h1>
-                <p className="text-gray-600">Preparedness & Prevention</p>
+                <p className="text-xl font-bold text-gray-600">Preparedness & Prevention</p>
               </div>
-              <Badge variant="outline" className="text-lg px-4 py-2">
+              <Badge variant="outline" className="text-xl px-6 py-3 bg-yellow-300 text-black border-4 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl">
                 Preparedness Score: {calculatePreparednessScore()}%
               </Badge>
             </div>
-            <Progress value={calculatePreparednessScore()} className="h-3" />
+            <div className="h-6 bg-gray-200 rounded-full border-4 border-black overflow-hidden relative">
+              <div
+                className="h-full bg-green-400 transition-all duration-500 ease-out border-r-4 border-black"
+                style={{ width: `${calculatePreparednessScore()}%` }}
+              />
+            </div>
           </div>
 
-          <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="alert" className="gap-2">
-                <AlertTriangle className="w-4 h-4" />
+          <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
+            <TabsList className="flex flex-wrap md:grid w-full h-auto p-2 gap-2 md:grid-cols-5 bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_#000]">
+              <TabsTrigger value="alert" className="data-[state=active]:bg-red-300 data-[state=active]:text-black data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:shadow-[2px_2px_0px_0px_#000] flex-1 gap-2 py-3 font-bold">
+                <AlertTriangle className="w-5 h-5" />
                 Alert
               </TabsTrigger>
-              <TabsTrigger value="assessment" className="gap-2">
-                <Activity className="w-4 h-4" />
+              <TabsTrigger value="assessment" className="data-[state=active]:bg-blue-300 data-[state=active]:text-black data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:shadow-[2px_2px_0px_0px_#000] flex-1 gap-2 py-3 font-bold">
+                <Activity className="w-5 h-5" />
                 Assessment
               </TabsTrigger>
-              <TabsTrigger value="gobag" className="gap-2">
-                <Package className="w-4 h-4" />
+              <TabsTrigger value="gobag" className="data-[state=active]:bg-green-300 data-[state=active]:text-black data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:shadow-[2px_2px_0px_0px_#000] flex-1 gap-2 py-3 font-bold">
+                <Package className="w-5 h-5" />
                 Go Bag
               </TabsTrigger>
-              <TabsTrigger value="evacuation" className="gap-2">
-                <MapPin className="w-4 h-4" />
+              <TabsTrigger value="evacuation" className="data-[state=active]:bg-purple-300 data-[state=active]:text-black data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:shadow-[2px_2px_0px_0px_#000] flex-1 gap-2 py-3 font-bold">
+                <MapPin className="w-5 h-5" />
                 Evacuation
               </TabsTrigger>
-              <TabsTrigger value="preparation" className="gap-2">
-                <GraduationCap className="w-4 h-4" />
+              <TabsTrigger value="preparation" className="data-[state=active]:bg-orange-300 data-[state=active]:text-black data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:shadow-[2px_2px_0px_0px_#000] flex-1 gap-2 py-3 font-bold">
+                <GraduationCap className="w-5 h-5" />
                 Drills
               </TabsTrigger>
             </TabsList>
@@ -310,39 +330,39 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                 </CardHeader>
                 <CardContent>
                   <p className="text-lg mb-4">{alert.advisory}</p>
-                  
+
                   <div className="bg-white/80 p-4 rounded-lg">
                     <h3 className="font-bold mb-2 flex items-center gap-2">
                       <Cloud className="w-5 h-5" />
-                      Understanding This Alert (Required)
+                      What does this mean? (Required)
                     </h3>
                     <p className="text-sm mb-3">
-                      As Barangay DRRM Officer, you must understand what this alert means for your community:
+                      As the Safety Hero, you must understand the danger:
                     </p>
-                    
+
                     {disaster === 'typhoon' && (
                       <div className="text-sm space-y-2 mb-4">
-                        <p><strong>Signal #4 means:</strong> Winds of 171-220 km/h expected in 12 hours</p>
-                        <p><strong>Actions:</strong> All residents in coastal and low-lying areas must evacuate immediately</p>
-                        <p><strong>Storm Surge:</strong> Life-threatening sea level rise of 2-3 meters</p>
+                        <p><strong>Signal #4 means:</strong> Very strong winds that can blow roofs away.</p>
+                        <p><strong>Actions:</strong> All families near the sea must leave now!</p>
+                        <p><strong>Storm Surge:</strong> Big waves from the sea.</p>
                       </div>
                     )}
-                    
+
                     {disaster === 'earthquake' && (
                       <div className="text-sm space-y-2 mb-4">
-                        <p><strong>Magnitude 7.2:</strong> Major earthquake causing serious damage</p>
-                        <p><strong>Actions:</strong> Check for structural damage, prepare for aftershocks</p>
-                        <p><strong>West Valley Fault:</strong> Major fault line affecting Metro Manila</p>
+                        <p><strong>Magnitude 7.2:</strong> A very strong earthquake!</p>
+                        <p><strong>Actions:</strong> Check if buildings are safe. Watch out for falling objects.</p>
+                        <p><strong>Danger:</strong> The ground shook very hard.</p>
                       </div>
                     )}
 
                     {!earlyWarningUnderstood && (
-                      <Button 
+                      <Button
                         onClick={() => setEarlyWarningUnderstood(true)}
                         className="w-full"
                       >
                         <CheckCircle2 className="w-4 h-4 mr-2" />
-                        I Understand This Alert
+                        I Understand! Let's Prepare!
                       </Button>
                     )}
 
@@ -361,9 +381,9 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
             <TabsContent value="assessment" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Barangay Risk Assessment</CardTitle>
+                  <CardTitle>Check Your Village Safety</CardTitle>
                   <CardDescription>
-                    Conduct a rapid risk assessment of your barangay as required by RA 10121
+                    Check if your neighborhood is safe and who needs help.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -385,14 +405,14 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
 
                   <div className="space-y-3">
                     <h3 className="font-bold">Risk Assessment Checklist:</h3>
-                    
+
                     <div className="space-y-2">
                       <div className="bg-white p-3 rounded border-2 border-gray-200">
                         <label className="flex items-start gap-3">
                           <input type="checkbox" className="mt-1" defaultChecked disabled />
                           <div className="flex-1">
-                            <p className="font-semibold">Identified vulnerable populations</p>
-                            <p className="text-sm text-gray-600">Elderly, PWD, pregnant women, children</p>
+                            <p className="font-semibold">Find people who need extra help</p>
+                            <p className="text-sm text-gray-600">Grandparents, babies, and sick people</p>
                           </div>
                         </label>
                       </div>
@@ -401,8 +421,8 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                         <label className="flex items-start gap-3">
                           <input type="checkbox" className="mt-1" defaultChecked disabled />
                           <div className="flex-1">
-                            <p className="font-semibold">Mapped hazard-prone areas</p>
-                            <p className="text-sm text-gray-600">Low-lying areas, near waterways</p>
+                            <p className="font-semibold">Find dangerous places</p>
+                            <p className="text-sm text-gray-600">Places that flood easily or are near cliffs</p>
                           </div>
                         </label>
                       </div>
@@ -411,8 +431,8 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                         <label className="flex items-start gap-3">
                           <input type="checkbox" className="mt-1" defaultChecked disabled />
                           <div className="flex-1">
-                            <p className="font-semibold">Listed critical infrastructure</p>
-                            <p className="text-sm text-gray-600">Health center, water system, power lines</p>
+                            <p className="font-semibold">List important buildings</p>
+                            <p className="text-sm text-gray-600">Hospital, water pipes, and electricity poles</p>
                           </div>
                         </label>
                       </div>
@@ -422,18 +442,17 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                   {!riskAssessmentDone ? (
                     <Button onClick={() => setRiskAssessmentDone(true)} className="w-full" size="lg">
                       <CheckCircle2 className="w-5 h-5 mr-2" />
-                      Complete Risk Assessment
+                      Complete Safety Check
                     </Button>
                   ) : (
                     <div className="bg-green-100 p-4 rounded border border-green-500 text-green-800">
                       <CheckCircle2 className="w-5 h-5 inline mr-2" />
-                      <strong>Risk Assessment Complete!</strong> You've identified key vulnerabilities in your barangay.
+                      <strong>Safety Check Complete!</strong> You know the dangers now.
                     </div>
                   )}
 
                   <div className="bg-yellow-50 p-3 rounded border border-yellow-300 text-sm">
-                    <strong>💡 RA 10121 Requirement:</strong> All barangays must conduct regular risk assessments 
-                    to identify hazards and vulnerable populations.
+                    <strong>💡 Safety Tip:</strong> Always know who needs help and where the safe places are!
                   </div>
                 </CardContent>
               </Card>
@@ -453,11 +472,11 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                     <div>
                       <h3 className="font-bold mb-3 flex items-center gap-2">
                         <Package className="w-5 h-5" />
-                        Available Items (Drag to Go Bag)
+                        Available Items (Drag or Double Tap)
                       </h3>
                       <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
                         {GO_BAG_ITEMS.filter(item => !goBagItems.includes(item.id)).map(item => (
-                          <DraggableItem key={item.id} item={item} />
+                          <DraggableItem key={item.id} item={item} onSelect={() => handleGoBagDrop(item.id)} />
                         ))}
                       </div>
                     </div>
@@ -468,9 +487,8 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                   </div>
 
                   <div className="bg-blue-50 p-4 rounded border border-blue-200 text-sm">
-                    <strong>📦 NDRRMC Go Bag Guidelines:</strong> A proper Go Bag contains supplies for 
-                    at least 72 hours (3 days) including water, food, first aid, important documents, 
-                    and communication devices.
+                    <strong>📦 Go Bag Tip:</strong> A Go Bag must have food, water, and tools for
+                    3 days. It helps you stay alive!
                   </div>
                 </CardContent>
               </Card>
@@ -487,40 +505,48 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {EVACUATION_CENTERS.map(center => (
-                      <div
-                        key={center.id}
-                        onClick={() => setEvacuationCenter(center.id)}
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                          evacuationCenter === center.id
-                            ? 'border-green-500 bg-green-50'
-                            : 'border-gray-300 hover:border-blue-400'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          {evacuationCenter === center.id ? (
-                            <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
-                          ) : (
-                            <MapPin className="w-6 h-6 text-gray-400 flex-shrink-0" />
-                          )}
-                          <div className="flex-1">
-                            <h3 className="font-bold mb-1">{center.name}</h3>
-                            <div className="text-sm space-y-1">
-                              <p><strong>Capacity:</strong> {center.capacity} persons</p>
-                              <p><strong>Readiness:</strong> 
-                                <span className={`ml-2 px-2 py-0.5 rounded text-xs font-semibold ${
-                                  center.readiness === 'Excellent' ? 'bg-green-200 text-green-800' :
-                                  center.readiness === 'Good' ? 'bg-blue-200 text-blue-800' :
-                                  'bg-yellow-200 text-yellow-800'
-                                }`}>
-                                  {center.readiness}
-                                </span>
-                              </p>
+                    {EVACUATION_CENTERS.map(center => {
+                      const Icon = center.icon;
+                      return (
+                        <div
+                          key={center.id}
+                          onClick={() => setEvacuationCenter(center.id)}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all transform hover:-translate-y-1 ${evacuationCenter === center.id
+                            ? 'border-green-500 bg-green-50 shadow-md ring-2 ring-green-200'
+                            : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50 shadow-sm'
+                            }`}
+                        >
+                          <div className="flex items-start gap-4">
+                            <div className={`p-3 rounded-full ${center.color}`}>
+                              <Icon className="w-8 h-8" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start">
+                                <h3 className="font-bold text-lg">{center.name}</h3>
+                                {evacuationCenter === center.id && (
+                                  <CheckCircle2 className="w-6 h-6 text-green-600 animate-in zoom-in" />
+                                )}
+                              </div>
+                              <div className="space-y-2 mt-2">
+                                <Badge variant="outline" className="bg-white">
+                                  Capacity: {center.capacity}
+                                </Badge>
+                                <Badge
+                                  variant={center.readiness === 'Excellent' ? 'default' : 'secondary'}
+                                  className={
+                                    center.readiness === 'Excellent' ? 'bg-green-600 ml-2' :
+                                      center.readiness === 'Good' ? 'bg-blue-600 text-white ml-2' :
+                                        'bg-yellow-500 text-black ml-2'
+                                  }
+                                >
+                                  {center.readiness} Readiness
+                                </Badge>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {evacuationCenter && (
@@ -531,8 +557,7 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                   )}
 
                   <div className="bg-yellow-50 p-3 rounded border border-yellow-300 text-sm">
-                    <strong>🏫 RA 10121 Guideline:</strong> Evacuation centers must be safe, accessible, 
-                    and equipped with basic facilities (water, toilets, sleeping area, cooking area).
+                    <strong>🏫 Safety Tip:</strong> Safe places must have toilets, water, and a place to sleep.
                   </div>
                 </CardContent>
               </Card>
@@ -544,7 +569,7 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                 <CardHeader>
                   <CardTitle>Conduct Drills and Allocate Budget</CardTitle>
                   <CardDescription>
-                    Final preparations before the disaster strikes
+                    Getting money and people ready!
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -554,7 +579,7 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                       <GraduationCap className="w-5 h-5" />
                       Emergency Drills
                     </h3>
-                    
+
                     <div className="bg-white p-4 rounded border-2 border-gray-200">
                       <div className="flex items-start gap-3 mb-3">
                         <Users className="w-6 h-6 text-blue-600" />
@@ -589,17 +614,17 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                   <div className="space-y-3">
                     <h3 className="font-bold flex items-center gap-2">
                       <DollarSign className="w-5 h-5" />
-                      Allocate DRRM Budget
+                      Set Emergency Budget (Money)
                     </h3>
-                    
+
                     <div className="bg-white p-4 rounded border-2 border-gray-200">
                       <p className="text-sm mb-3">
-                        <strong>Available Barangay DRRM Fund:</strong> ₱100,000
+                        <strong>Available Village Funds:</strong> ₱100,000
                       </p>
-                      
+
                       <div className="space-y-2 mb-4">
                         <label className="block text-sm">
-                          <strong>Allocate for immediate disaster response:</strong>
+                          <strong>Save money for the disaster:</strong>
                         </label>
                         <input
                           type="range"
@@ -635,8 +660,7 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                   </div>
 
                   <div className="bg-blue-50 p-3 rounded border border-blue-200 text-sm">
-                    <strong>📜 RA 10121 Mandate:</strong> LGUs must allocate at least 5% of their budget 
-                    to DRRM activities (70% for disaster preparedness, 30% for quick response fund).
+                    <strong>📜 Law Rule:</strong> We must save 5% of our money for safety and disasters (Quick Response Fund).
                   </div>
                 </CardContent>
               </Card>
@@ -651,8 +675,8 @@ export function GamePhase1({ disaster, onComplete }: GamePhase1Props) {
                   <h3 className="font-bold text-lg mb-1">Ready to Proceed?</h3>
                   <p className="text-sm text-gray-600">
                     {isReadyToProceed
-                      ? 'All minimum requirements met. You may proceed to the Response Phase.'
-                      : 'Complete required tasks: Go Bag (5+ items), Evacuation Center, Alert Understanding, Risk Assessment'
+                      ? 'Good job! You are ready for the next step.'
+                      : 'Please finish: Go Bag (5 items), Safe Place, Understanding Alert, Safety Check'
                     }
                   </p>
                 </div>

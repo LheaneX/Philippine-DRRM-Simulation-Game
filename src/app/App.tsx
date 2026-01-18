@@ -11,9 +11,17 @@ import { toast } from 'sonner';
 
 type GameScreen = 'intro' | 'tutorial' | 'phase1' | 'phase2' | 'phase3' | 'report';
 
+export interface GameHistoryItem {
+  date: string;
+  disaster: string;
+  difficulty: string;
+  score: number;
+}
+
 interface GameState {
   screen: GameScreen;
   disaster: string;
+  difficulty: 'easy' | 'medium' | 'hard';
   preparedness: PreparednessData | null;
   response: ResponseData | null;
 }
@@ -21,11 +29,21 @@ interface GameState {
 const INITIAL_STATE: GameState = {
   screen: 'intro',
   disaster: '',
+  difficulty: 'medium',
   preparedness: null,
   response: null
 };
 
 export default function App() {
+  const [history, setHistory] = useState<GameHistoryItem[]>(() => {
+    // Load saved history
+    const saved = localStorage.getItem('drrm-game-history');
+    if (saved) {
+      try { return JSON.parse(saved); } catch { return []; }
+    }
+    return [];
+  });
+
   const [gameState, setGameState] = useState<GameState>(() => {
     // Load saved game state from localStorage
     const saved = localStorage.getItem('drrm-game-state');
@@ -44,14 +62,15 @@ export default function App() {
     localStorage.setItem('drrm-game-state', JSON.stringify(gameState));
   }, [gameState]);
 
-  const handleStartGame = (disaster: string) => {
+  const handleStartGame = (disaster: string, difficulty: 'easy' | 'medium' | 'hard') => {
     setGameState({
       screen: 'phase1',
       disaster,
+      difficulty,
       preparedness: null,
       response: null
     });
-    toast.success(`Starting ${disaster} scenario - Phase 1: Preparedness`);
+    toast.success(`Starting ${disaster} scenario (${difficulty}) - Phase 1: Preparedness`);
   };
 
   const handleStartTutorial = () => {
@@ -90,6 +109,19 @@ export default function App() {
   };
 
   const handlePhase3Complete = () => {
+    const score = calculateFinalScore();
+    const newRecord: GameHistoryItem = {
+      date: new Date().toISOString(),
+      disaster: gameState.disaster,
+      difficulty: gameState.difficulty,
+      score
+    };
+
+    // Save to history (keep top 10 recent)
+    const newHistory = [newRecord, ...history].slice(0, 10);
+    setHistory(newHistory);
+    localStorage.setItem('drrm-game-history', JSON.stringify(newHistory));
+
     setGameState({ ...gameState, screen: 'report' });
     toast.success('All Phases Complete! Generating Report...');
   };
@@ -105,24 +137,30 @@ export default function App() {
 
   const calculateFinalScore = () => {
     if (!gameState.preparedness || !gameState.response) return 0;
-    
+
     const prepWeight = 30;
     const responseWeight = 40;
     const recoveryWeight = 30; // Simplified - in Phase3 it calculates this properly
-    
+
     const prepScore = (gameState.preparedness.preparednessScore / 100) * prepWeight;
     const respScore = (gameState.response.responseScore / 100) * responseWeight;
     const recovScore = (80 / 100) * recoveryWeight; // Default recovery score
-    
+
     return Math.round(prepScore + respScore + recovScore);
   };
 
   return (
     <>
       {gameState.screen === 'intro' && (
-        <GameIntro 
+        <GameIntro
           onStartGame={handleStartGame}
           onStartTutorial={handleStartTutorial}
+          history={history}
+          onClearHistory={() => {
+            setHistory([]);
+            localStorage.removeItem('drrm-game-history');
+            toast.success('History cleared');
+          }}
         />
       )}
 
@@ -143,6 +181,7 @@ export default function App() {
       {gameState.screen === 'phase2' && gameState.preparedness && (
         <GamePhase2
           disaster={gameState.disaster}
+          difficulty={gameState.difficulty}
           preparedness={gameState.preparedness}
           onComplete={handlePhase2Complete}
         />

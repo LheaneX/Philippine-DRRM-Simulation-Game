@@ -1,19 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Progress } from '@/app/components/ui/progress';
 import { Badge } from '@/app/components/ui/badge';
 import { Alert, AlertDescription } from '@/app/components/ui/alert';
-import { 
-  AlertTriangle, Users, Radio, Siren, Heart, Flame, Phone,
-  CheckCircle2, XCircle, Clock, TrendingDown, TrendingUp
+import {
+  AlertTriangle, Users, Radio, Siren, CheckCircle2, XCircle, Clock,
+  TrendingDown, TrendingUp, AlertCircle, Phone, Megaphone, Waves, Home, Zap, Truck, Activity, Mountain, Flame
 } from 'lucide-react';
+import { Phase2Tutorial } from './Phase2Tutorial';
 import { PreparednessData } from './GamePhase1';
+import { soundManager } from '@/app/utils/sound';
 
-interface GamePhase2Props {
-  disaster: string;
-  preparedness: PreparednessData;
-  onComplete: (responseData: ResponseData) => void;
+interface EmergencyOption {
+  action: string;
+  outcome: string;
+  correct: boolean;
+}
+
+interface EmergencyEvent {
+  id: string;
+  type: string;
+  description: string;
+  severity: 'high' | 'medium' | 'low';
+  icon: any;
+  options: EmergencyOption[];
 }
 
 export interface ResponseData {
@@ -26,16 +36,11 @@ export interface ResponseData {
   responseScore: number;
 }
 
-interface EmergencyEvent {
-  id: string;
-  type: string;
-  description: string;
-  severity: 'low' | 'medium' | 'high';
-  options: {
-    action: string;
-    outcome: string;
-    correct: boolean;
-  }[];
+interface GamePhase2Props {
+  disaster: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  preparedness: PreparednessData;
+  onComplete: (responseData: ResponseData) => void;
 }
 
 const DISASTER_EVENTS = {
@@ -45,6 +50,7 @@ const DISASTER_EVENTS = {
       type: 'Evacuation Decision',
       description: 'PAGASA Signal #4 is now in effect. Coastal residents are asking if they should evacuate now.',
       severity: 'high' as const,
+      icon: Megaphone,
       options: [
         {
           action: 'Order immediate mandatory evacuation of all coastal and low-lying areas',
@@ -68,6 +74,7 @@ const DISASTER_EVENTS = {
       type: 'Storm Surge Warning',
       description: 'PAGASA warns of 2-3 meter storm surge in 2 hours. Some families refuse to leave their homes.',
       severity: 'high' as const,
+      icon: Waves,
       options: [
         {
           action: 'Coordinate with Barangay Tanods and PNP for forced evacuation',
@@ -86,6 +93,7 @@ const DISASTER_EVENTS = {
       type: 'Rescue Request',
       description: 'Family is trapped on roof by rising floodwater. Strong winds make rescue dangerous.',
       severity: 'high' as const,
+      icon: Home,
       options: [
         {
           action: 'Coordinate with BFP and AFP for rescue operation using appropriate equipment',
@@ -98,6 +106,44 @@ const DISASTER_EVENTS = {
           correct: false
         }
       ]
+    },
+    {
+      id: 'hospital_power',
+      type: 'Critical Infrastructure',
+      description: 'District Hospital reports power failure. Generators are failing. Patients on life support at risk.',
+      severity: 'high' as const,
+      icon: Zap,
+      options: [
+        {
+          action: 'Prioritize fuel delivery and coordinate technical team from Electric Coop',
+          outcome: 'Correct! Securing power for critical lifeline facilities is a top priority.',
+          correct: true
+        },
+        {
+          action: 'Relocate all patients to the Barangay Hall',
+          outcome: 'Incorrect. Moving critical patients during a storm is extremely dangerous and facilities are inadequate.',
+          correct: false
+        }
+      ]
+    },
+    {
+      id: 'food_shortage',
+      type: 'Relief Operations',
+      description: 'Evacuees are increasing rapidly. Food stocks in the center are running low.',
+      severity: 'medium' as const,
+      icon: Truck,
+      options: [
+        {
+          action: 'Request augmentation from DSWD and Municipal DRRMO',
+          outcome: 'Correct! Local government should request higher level support when local resources are insufficient.',
+          correct: true
+        },
+        {
+          action: 'Ask evacuees to go home and get food',
+          outcome: 'Incorrect. Sending people back to danger zones defeats the purpose of evacuation!',
+          correct: false
+        }
+      ]
     }
   ],
   earthquake: [
@@ -106,6 +152,7 @@ const DISASTER_EVENTS = {
       type: 'Aftershock Warning',
       description: 'PHIVOLCS warns of strong aftershocks. People want to return home to get belongings.',
       severity: 'high' as const,
+      icon: Activity,
       options: [
         {
           action: 'Prohibit entry to damaged buildings until structural inspection',
@@ -124,64 +171,28 @@ const DISASTER_EVENTS = {
       type: 'Fire Emergency',
       description: 'Electrical fire breaks out in damaged building due to exposed wires. Spreading quickly.',
       severity: 'high' as const,
+      icon: Flame,
       options: [
         {
-          action: 'Immediately call BFP, evacuate surrounding areas, cut power supply',
-          outcome: 'Correct! Coordinate with fire experts and prevent further casualties through evacuation.',
+          action: 'Immediately call BFP, evacuate adjacent houses, coordinate rescue with trained personnel',
+          outcome: 'Correct! Quick BFP response and systematic evacuation prevents fire from spreading.',
           correct: true
         },
         {
-          action: 'Use water from nearby source to fight fire',
-          outcome: 'Incorrect. Electrical fires need specialized response - water may electrocute people!',
-          correct: false
-        }
-      ]
-    },
-    {
-      id: 'injury1',
-      type: 'Mass Casualties',
-      description: 'Multiple injuries reported. Local health center overwhelmed. Need emergency medical response.',
-      severity: 'high' as const,
-      options: [
-        {
-          action: 'Activate Rural Health Unit emergency protocols, request DOH assistance, triage patients',
-          outcome: 'Correct! Proper triage and coordination with health authorities saves the most lives.',
-          correct: true
-        },
-        {
-          action: 'Transport all injured to city hospital immediately',
-          outcome: 'Partially correct but may overwhelm one facility. Triage and distributed care is better.',
+          action: 'Organize community bucket brigade to fight fire',
+          outcome: 'Incorrect. Large fires need professional firefighters. Focus on evacuation and rescue.',
           correct: false
         }
       ]
     }
   ],
-  flood: [
+  volcanic_eruption: [
     {
-      id: 'flood1',
-      type: 'Flash Flood Alert',
-      description: 'PAGASA Red Rainfall Warning. Water rising rapidly in low areas. Traffic jam blocking evacuation route.',
+      id: 'eruption_level4',
+      type: 'Alert Level 4 Raised',
+      description: 'PHIVOLCS raises Alert Level to 4. Hazardous eruption imminent.',
       severity: 'high' as const,
-      options: [
-        {
-          action: 'Coordinate with PNP for traffic management, use alternate routes, deploy boats if needed',
-          outcome: 'Correct! Multi-agency coordination and alternate plans ensure successful evacuation.',
-          correct: true
-        },
-        {
-          action: 'Wait for traffic to clear naturally',
-          outcome: 'Incorrect. Flash floods are deadly - every minute counts! Take immediate action.',
-          correct: false
-        }
-      ]
-    }
-  ],
-  volcano: [
-    {
-      id: 'volcano1',
-      type: 'Volcanic Alert',
-      description: 'PHIVOLCS raises alert to Level 4. Hazardous eruption imminent. Need to evacuate 14km radius.',
-      severity: 'high' as const,
+      icon: Mountain,
       options: [
         {
           action: 'Issue immediate mandatory evacuation, coordinate transportation, activate all evacuation centers',
@@ -202,6 +213,7 @@ const DISASTER_EVENTS = {
       type: 'Landslide Risk',
       description: 'Continuous rain saturating mountainside. Ground showing cracks. Houses at risk.',
       severity: 'high' as const,
+      icon: Mountain,
       options: [
         {
           action: 'Immediately evacuate at-risk houses, coordinate with MGB and DENR for assessment',
@@ -222,6 +234,7 @@ const DISASTER_EVENTS = {
       type: 'Urban Fire',
       description: 'Fire spreading rapidly in dense community. Strong winds. Multiple families trapped.',
       severity: 'high' as const,
+      icon: Flame,
       options: [
         {
           action: 'Immediately call BFP, evacuate adjacent houses, coordinate rescue with trained personnel',
@@ -238,29 +251,94 @@ const DISASTER_EVENTS = {
   ]
 };
 
-export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Props) {
-  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes simulation
+export function GamePhase2({ disaster, difficulty, preparedness, onComplete }: GamePhase2Props) {
+  const [timeRemaining, setTimeRemaining] = useState(300);
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const [events, setEvents] = useState<EmergencyEvent[]>([]); // To store randomized events
+  const [isReady, setIsReady] = useState(false);
+
   const [evacuationsIssued, setEvacuationsIssued] = useState(false);
   const [agenciesCoordinated, setAgenciesCoordinated] = useState<string[]>([]);
   const [emergenciesHandled, setEmergenciesHandled] = useState(0);
   const [correctDecisions, setCorrectDecisions] = useState(0);
   const [evacuationCenterStatus, setEvacuationCenterStatus] = useState<'idle' | 'active' | 'overwhelmed'>('idle');
-  const [publicPanic, setPublicPanic] = useState(20); // Lower is better
+  const [publicPanic, setPublicPanic] = useState(20);
   const [eventLog, setEventLog] = useState<string[]>([]);
   const [showEventResult, setShowEventResult] = useState<string | null>(null);
+  const [showTutorial, setShowTutorial] = useState(true);
 
-  const events = DISASTER_EVENTS[disaster as keyof typeof DISASTER_EVENTS] || DISASTER_EVENTS.typhoon;
+  // Initialize Random Scenario based on Difficulty
+  useEffect(() => {
+    try {
+      console.log('Initializing Phase 2:', { disaster, difficulty });
+      const disasterKey = disaster as keyof typeof DISASTER_EVENTS;
+      const allEvents = DISASTER_EVENTS[disasterKey] || DISASTER_EVENTS.typhoon;
+
+      if (!allEvents || allEvents.length === 0) {
+        console.error('No events found for disaster:', disaster);
+        setEvents([]);
+        setIsReady(true);
+        return;
+      }
+
+      // Shuffle events
+      const shuffled = [...allEvents].sort(() => 0.5 - Math.random());
+
+      let eventCount = 3;
+      let initialTime = 300;
+      let initialPanic = 20;
+
+      if (difficulty === 'easy') {
+        eventCount = 3;
+        initialTime = 300; // 5 mins
+        initialPanic = 10;
+      } else if (difficulty === 'medium') {
+        eventCount = 4;
+        initialTime = 240; // 4 mins
+        initialPanic = 20;
+      } else if (difficulty === 'hard') {
+        eventCount = 5; // Or all if less than 5
+        initialTime = 150; // 2.5 mins
+        initialPanic = 40;
+      }
+
+      const selectedEvents = shuffled.slice(0, Math.min(shuffled.length, eventCount));
+      console.log('Selected Events:', selectedEvents);
+
+      setEvents(selectedEvents);
+      setTimeRemaining(initialTime);
+      setPublicPanic(initialPanic);
+      setIsReady(true);
+
+      // Play start sound (safe invoke)
+      try {
+        soundManager.play('start');
+      } catch (e) {
+        console.warn('Audio play failed:', e);
+      }
+    } catch (err) {
+      console.error('Error in Phase 2 init:', err);
+      setIsReady(true); // Ensure we don't get stuck even if error
+    }
+  }, [disaster, difficulty]);
+
   const currentEvent = events[currentEventIndex];
   const isComplete = currentEventIndex >= events.length;
 
+  // Safety check for render
+  if (isReady && !currentEvent && !isComplete) {
+    // If we are ready but have no event and not complete, it means events array is empty or index out of bounds
+    // But if events is empty, isComplete (0 >= 0) is true.
+    // So this case handles index mismanagement.
+  }
+
   // Timer
   useEffect(() => {
-    if (timeRemaining > 0 && !isComplete) {
+    if (timeRemaining > 0 && !isComplete && !showTutorial && isReady) {
       const timer = setTimeout(() => setTimeRemaining(timeRemaining - 1), 1000);
       return () => clearTimeout(timer);
     }
-  }, [timeRemaining, isComplete]);
+  }, [timeRemaining, isComplete, showTutorial, isReady]);
 
   const handleEvacuationOrder = () => {
     if (!evacuationsIssued) {
@@ -268,7 +346,7 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
       setEvacuationCenterStatus('active');
       setPublicPanic(Math.max(0, publicPanic - 10));
       addToLog('✅ Evacuation order issued successfully');
-      
+
       // Good preparedness means better compliance
       if (preparedness.preparednessScore >= 70) {
         addToLog('🎯 High preparedness resulted in smooth evacuation!');
@@ -286,20 +364,32 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
   const handleEventResponse = (optionIndex: number) => {
     const option = currentEvent.options[optionIndex];
     setShowEventResult(option.outcome);
-    
+
     if (option.correct) {
       setCorrectDecisions(correctDecisions + 1);
       setEmergenciesHandled(emergenciesHandled + 1);
-      setPublicPanic(Math.max(0, publicPanic - 5));
+
+      // Difficulty Logic: Panic Reduction
+      const reduction = difficulty === 'easy' ? 10 : difficulty === 'hard' ? 3 : 5;
+      setPublicPanic(Math.max(0, publicPanic - reduction));
+
       addToLog(`✅ ${currentEvent.type}: Correct action taken`);
+      soundManager.play('success');
     } else {
-      setPublicPanic(Math.min(100, publicPanic + 10));
+      // Difficulty Logic: Panic Increase
+      const penalty = difficulty === 'easy' ? 5 : difficulty === 'hard' ? 20 : 10;
+      setPublicPanic(Math.min(100, publicPanic + penalty));
+
       addToLog(`❌ ${currentEvent.type}: Suboptimal decision`);
+      soundManager.play('error');
     }
 
     setTimeout(() => {
       setShowEventResult(null);
       setCurrentEventIndex(currentEventIndex + 1);
+      if (currentEventIndex + 1 < events.length) {
+        soundManager.play('alert');
+      }
     }, 3000);
   };
 
@@ -354,8 +444,8 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
               </p>
               <div className="grid grid-cols-2 gap-4 text-sm mb-6">
                 <div className="bg-blue-50 p-3 rounded">
-                  <p className="font-semibold">Evacuations Issued</p>
-                  <p className="text-2xl">{evacuationsIssued ? '✅' : '❌'}</p>
+                  <p className="font-semibold">Difficulty</p>
+                  <p className="text-2xl capitalize">{difficulty}</p>
                 </div>
                 <div className="bg-green-50 p-3 rounded">
                   <p className="font-semibold">Emergencies Handled</p>
@@ -381,21 +471,27 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
     );
   }
 
+  // Loading state
+  if (!isReady || !currentEvent) {
+    return <div className="min-h-screen flex items-center justify-center">Loading Scenario... {isReady ? '(Preparing Events)' : '(Initializing)'}</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 p-6">
+    <div className="min-h-screen bg-[#FDBA74] p-6 font-['Fredoka']" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}>
+      {showTutorial && <Phase2Tutorial onComplete={() => setShowTutorial(false)} />}
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-8 bg-white border-4 border-black rounded-3xl p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-2">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                <Siren className="w-8 h-8 text-red-600 animate-pulse" />
+              <h1 className="text-3xl font-black text-black mb-1 flex items-center gap-3 uppercase tracking-tight">
+                <Siren className="w-10 h-10 text-red-600 animate-pulse fill-current" />
                 PHASE 2: DURING THE DISASTER
               </h1>
-              <p className="text-gray-600">Response Phase - Emergency in Progress</p>
+              <p className="text-xl font-bold text-gray-700">Response Phase - Emergency in Progress</p>
             </div>
-            <Badge variant="destructive" className="text-lg px-4 py-2 animate-pulse">
-              <Clock className="w-4 h-4 mr-2" />
+            <Badge variant="destructive" className="text-xl px-6 py-3 border-4 border-black shadow-[4px_4px_0px_0px_#000] animate-pulse bg-red-500 text-white rounded-xl">
+              <Clock className="w-6 h-6 mr-2" />
               Time: {formatTime(timeRemaining)}
             </Badge>
           </div>
@@ -405,63 +501,62 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
           {/* Left Column - Status Dashboard */}
           <div className="lg:col-span-1 space-y-4">
             {/* Public Status */}
-            <Card className="border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Users className="w-5 h-5" />
+            <Card className="border-4 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden">
+              <CardHeader className="pb-3 bg-white border-b-4 border-black">
+                <CardTitle className="text-lg font-black flex items-center gap-2 uppercase">
+                  <Users className="w-6 h-6" />
                   Community Status
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4 pt-4 bg-white/90">
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
+                  <div className="flex justify-between text-sm mb-1 font-bold">
                     <span>Public Panic Level</span>
-                    <span className={publicPanic > 50 ? 'text-red-600 font-bold' : 'text-green-600'}>
+                    <span className={publicPanic > 50 ? 'text-red-600' : 'text-green-600'}>
                       {publicPanic}%
                     </span>
                   </div>
-                  <Progress 
-                    value={publicPanic} 
-                    className={`h-2 ${publicPanic > 50 ? '[&>div]:bg-red-500' : '[&>div]:bg-green-500'}`}
-                  />
+                  <div className="h-4 bg-gray-200 rounded-full border-2 border-black overflow-hidden relative">
+                    <div
+                      className={`h-full transition-all duration-500 ${publicPanic > 50 ? 'bg-red-500' : 'bg-green-500'}`}
+                      style={{ width: `${publicPanic}%` }}
+                    />
+                  </div>
                   {publicPanic > 60 && (
-                    <p className="text-xs text-red-600 mt-1">⚠️ High panic - coordinate better!</p>
+                    <p className="text-xs font-bold text-red-600 mt-1 bg-red-100 p-1 border border-red-500 rounded">⚠️ High panic - coordinate better!</p>
                   )}
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
+                  <div className="flex justify-between text-sm mb-1 font-bold">
                     <span>Evacuation Status</span>
                   </div>
-                  <Badge variant={evacuationsIssued ? 'default' : 'destructive'} className="w-full justify-center">
+                  <div className={`p-2 rounded-lg border-2 border-black text-center font-bold text-sm ${evacuationsIssued ? 'bg-green-300' : 'bg-red-300'}`}>
                     {evacuationsIssued ? '✅ Evacuations Ordered' : '⚠️ Not Yet Ordered'}
-                  </Badge>
+                  </div>
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
+                  <div className="flex justify-between text-sm mb-1 font-bold">
                     <span>Evacuation Center</span>
                   </div>
-                  <Badge 
-                    variant={evacuationCenterStatus === 'active' ? 'default' : 'secondary'}
-                    className="w-full justify-center"
-                  >
-                    {evacuationCenterStatus === 'idle' ? 'Standby' : 
-                     evacuationCenterStatus === 'active' ? '✅ Operating' : '⚠️ Overwhelmed'}
-                  </Badge>
+                  <div className={`p-2 rounded-lg border-2 border-black text-center font-bold text-sm ${evacuationCenterStatus === 'active' ? 'bg-blue-300' : evacuationCenterStatus === 'idle' ? 'bg-gray-200' : 'bg-red-300'}`}>
+                    {evacuationCenterStatus === 'idle' ? 'Standby' :
+                      evacuationCenterStatus === 'active' ? '✅ Operating' : '⚠️ Overwhelmed'}
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Agencies */}
-            <Card className="border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Radio className="w-5 h-5" />
+            <Card className="border-4 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden">
+              <CardHeader className="pb-3 bg-white border-b-4 border-black">
+                <CardTitle className="text-lg font-black flex items-center gap-2 uppercase">
+                  <Radio className="w-6 h-6" />
                   Agency Coordination
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-4 bg-white/90">
                 <div className="space-y-2">
                   {['BFP', 'PNP', 'AFP', 'DOH', 'DSWD'].map(agency => (
                     <Button
@@ -469,7 +564,8 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
                       size="sm"
                       variant={agenciesCoordinated.includes(agency) ? 'default' : 'outline'}
                       onClick={() => handleAgencyCoordination(agency)}
-                      className="w-full justify-start"
+                      className={`w-full justify-start font-bold border-2 border-black shadow-[2px_2px_0px_0px_#000] active:translate-y-0.5 active:shadow-none transition-all ${agenciesCoordinated.includes(agency) ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-white hover:bg-gray-100'
+                        }`}
                       disabled={agenciesCoordinated.includes(agency)}
                     >
                       {agenciesCoordinated.includes(agency) ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Phone className="w-4 h-4 mr-2" />}
@@ -477,24 +573,24 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
                     </Button>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 mt-3">
-                  Coordinate with agencies for comprehensive response
+                <p className="text-xs font-bold text-gray-500 mt-3 text-center">
+                  Coordinate with agencies for response
                 </p>
               </CardContent>
             </Card>
 
             {/* Activity Log */}
-            <Card className="border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Activity Log</CardTitle>
+            <Card className="border-4 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden">
+              <CardHeader className="pb-3 bg-white border-b-4 border-black">
+                <CardTitle className="text-lg font-black">Activity Log</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-1 text-xs max-h-[200px] overflow-y-auto">
+              <CardContent className="pt-4 bg-white">
+                <div className="space-y-1 text-xs max-h-[200px] overflow-y-auto font-mono">
                   {eventLog.length === 0 ? (
                     <p className="text-gray-400 italic">No activities yet...</p>
                   ) : (
                     eventLog.map((log, i) => (
-                      <p key={i} className="py-1 border-b border-gray-100 last:border-0">{log}</p>
+                      <p key={i} className="py-2 border-b-2 border-gray-100 last:border-0 font-bold text-gray-700">{log}</p>
                     ))
                   )}
                 </div>
@@ -503,77 +599,103 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
           </div>
 
           {/* Right Column - Emergency Events */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-6">
             {/* Quick Actions */}
             {!evacuationsIssued && (
-              <Alert className="border-2 border-red-500 bg-red-50">
-                <AlertTriangle className="w-5 h-5" />
-                <AlertDescription className="flex items-center justify-between">
-                  <span className="font-semibold">⚠️ Critical: Issue evacuation orders immediately!</span>
-                  <Button onClick={handleEvacuationOrder} variant="destructive">
-                    Issue Evacuation Order
+              <Alert className="border-4 border-black bg-red-200 shadow-[8px_8px_0px_0px_#000] rounded-xl">
+                <AlertTriangle className="w-8 h-8 text-black" />
+                <AlertDescription className="flex flex-col md:flex-row items-center justify-between gap-4 w-full ml-2">
+                  <span className="font-black text-lg text-red-900 uppercase">Critical: Issue evacuation orders!</span>
+                  <Button onClick={handleEvacuationOrder} className="bg-red-600 text-white font-bold border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:bg-red-700 hover:shadow-none hover:translate-y-1 transition-all">
+                    ISSUE ORDER NOW
                   </Button>
                 </AlertDescription>
               </Alert>
             )}
 
             {/* Current Emergency Event */}
-            <Card className={`border-4 ${
-              currentEvent.severity === 'high' ? 'border-red-500 bg-red-50' :
-              currentEvent.severity === 'medium' ? 'border-orange-500 bg-orange-50' :
-              'border-yellow-500 bg-yellow-50'
-            }`}>
-              <CardHeader>
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className={`w-10 h-10 flex-shrink-0 ${
-                    currentEvent.severity === 'high' ? 'text-red-600' :
-                    currentEvent.severity === 'medium' ? 'text-orange-600' :
-                    'text-yellow-600'
-                  }`} />
+            <Card className={`border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-3xl overflow-hidden transform transition-all duration-300 ${currentEvent.severity === 'high' ? 'bg-red-100' :
+              currentEvent.severity === 'medium' ? 'bg-orange-100' :
+                'bg-yellow-100'
+              }`}>
+              <CardHeader className="bg-white/40 backdrop-blur-md border-b-4 border-black pb-6 pt-6">
+                <div className="flex items-start gap-4">
+                  {currentEvent.icon ? (
+                    <div className={`p-4 rounded-2xl border-4 border-black shadow-[4px_4px_0px_0px_#000] ${currentEvent.severity === 'high' ? 'bg-red-200' :
+                      currentEvent.severity === 'medium' ? 'bg-orange-200' : 'bg-yellow-200'
+                      }`}>
+                      <currentEvent.icon className="w-12 h-12 text-black" />
+                    </div>
+                  ) : (
+                    <AlertTriangle className="w-16 h-16 text-black" />
+                  )}
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="destructive">
-                        EMERGENCY {currentEventIndex + 1}/{events.length}
+                    <div className="flex items-center gap-3 mb-3">
+                      <Badge variant="destructive" className="animate-pulse border-2 border-black text-white px-3 py-1 text-sm font-bold shadow-[2px_2px_0px_0px_#000]">
+                        EVENT {currentEventIndex + 1}/{events.length}
                       </Badge>
-                      <Badge variant="outline">
-                        {currentEvent.type}
+                      <Badge variant="outline" className="text-black font-black border-2 border-black bg-white px-3 py-1 text-sm shadow-[2px_2px_0px_0px_#000]">
+                        {currentEvent.severity.toUpperCase()} PRIORITY
                       </Badge>
                     </div>
-                    <CardTitle className="text-xl">{currentEvent.description}</CardTitle>
+                    <CardTitle className="text-3xl font-black leading-tight text-black mb-1">
+                      {currentEvent.type}
+                    </CardTitle>
+                    <p className="text-xl font-bold text-gray-800 leading-snug">
+                      "{currentEvent.description}"
+                    </p>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="font-semibold text-red-900">What will you do?</p>
-                
-                <div className="space-y-3">
+              <CardContent className="space-y-6 p-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-1 flex-1 bg-black rounded-full"></div>
+                  <p className="font-black text-black text-lg uppercase tracking-wider bg-white px-4 py-1 rounded-full border-2 border-black shadow-sm transform -rotate-2">
+                    What will you do?
+                  </p>
+                  <div className="h-1 flex-1 bg-black rounded-full"></div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
                   {currentEvent.options.map((option, index) => (
                     <Button
                       key={index}
                       onClick={() => handleEventResponse(index)}
-                      variant="outline"
-                      className="w-full text-left h-auto py-4 px-4 hover:bg-white hover:border-blue-500 justify-start whitespace-normal"
+                      className="w-full text-left h-auto py-6 px-8 hover:scale-[1.02] active:scale-[0.98] transition-all justify-start whitespace-normal border-4 border-black bg-white shadow-[6px_6px_0px_0px_#000] hover:shadow-[4px_4px_0px_0px_#000] hover:bg-blue-50 group rounded-2xl relative overflow-hidden"
                       disabled={showEventResult !== null}
                     >
-                      <span className="font-semibold mr-2">{String.fromCharCode(65 + index)}.</span>
-                      <span>{option.action}</span>
+                      {/* Option Letter */}
+                      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gray-100 border-r-4 border-black flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        <span className="text-2xl font-black text-black">{String.fromCharCode(65 + index)}</span>
+                      </div>
+
+                      <div className="pl-12 w-full">
+                        <span className="text-xl text-black font-bold group-hover:text-blue-900 leading-tight">
+                          {option.action}
+                        </span>
+                      </div>
                     </Button>
                   ))}
                 </div>
 
                 {showEventResult && (
-                  <Alert className={`border-2 ${
-                    currentEvent.options.find(o => o.outcome === showEventResult)?.correct
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-red-500 bg-red-50'
-                  }`}>
+                  <Alert className={`border-4 border-black rounded-2xl animate-in zoom-in slide-in-from-bottom-5 duration-300 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.5)] ${currentEvent.options.find(o => o.outcome === showEventResult)?.correct
+                    ? 'bg-green-100'
+                    : 'bg-red-100'
+                    }`}>
                     {currentEvent.options.find(o => o.outcome === showEventResult)?.correct ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      <CheckCircle2 className="w-10 h-10 text-black mt-1" />
                     ) : (
-                      <XCircle className="w-5 h-5 text-red-600" />
+                      <XCircle className="w-10 h-10 text-black mt-1" />
                     )}
-                    <AlertDescription className="font-semibold">
-                      {showEventResult}
+                    <AlertDescription className="ml-4">
+                      <span className={`block font-black text-2xl mb-2 uppercase tracking-wide ${currentEvent.options.find(o => o.outcome === showEventResult)?.correct ? 'text-green-900' : 'text-red-900'
+                        }`}>
+                        {currentEvent.options.find(o => o.outcome === showEventResult)?.correct ? 'Excellent Decision!' : 'Situation Critical!'}
+                      </span>
+                      <span className="text-black text-lg font-bold leading-snug">
+                        {showEventResult}
+                      </span>
                     </AlertDescription>
                   </Alert>
                 )}
@@ -581,46 +703,46 @@ export function GamePhase2({ disaster, preparedness, onComplete }: GamePhase2Pro
             </Card>
 
             {/* Performance Indicators */}
-            <div className="grid grid-cols-3 gap-4">
-              <Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="border-4 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden bg-white">
                 <CardContent className="pt-6 text-center">
-                  <CheckCircle2 className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold">{correctDecisions}</p>
-                  <p className="text-sm text-gray-600">Correct Decisions</p>
+                  <CheckCircle2 className="w-10 h-10 text-green-600 mx-auto mb-2" />
+                  <p className="text-3xl font-black text-black">{correctDecisions}</p>
+                  <p className="text-sm font-bold text-gray-600 uppercase">Correct Decisions</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-4 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden bg-white">
                 <CardContent className="pt-6 text-center">
                   {publicPanic < 40 ? (
-                    <TrendingDown className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                    <TrendingDown className="w-10 h-10 text-green-600 mx-auto mb-2" />
                   ) : (
-                    <TrendingUp className="w-8 h-8 text-red-600 mx-auto mb-2" />
+                    <TrendingUp className="w-10 h-10 text-red-600 mx-auto mb-2" />
                   )}
-                  <p className="text-2xl font-bold">{100 - publicPanic}%</p>
-                  <p className="text-sm text-gray-600">Public Trust</p>
+                  <p className="text-3xl font-black text-black">{100 - publicPanic}%</p>
+                  <p className="text-sm font-bold text-gray-600 uppercase">Public Trust</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-4 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden bg-white">
                 <CardContent className="pt-6 text-center">
-                  <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold">{agenciesCoordinated.length}/5</p>
-                  <p className="text-sm text-gray-600">Agencies Coordinated</p>
+                  <Users className="w-10 h-10 text-blue-600 mx-auto mb-2" />
+                  <p className="text-3xl font-black text-black">{agenciesCoordinated.length}/5</p>
+                  <p className="text-sm font-bold text-gray-600 uppercase">Agencies Coordinated</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Educational Note */}
-            <Card className="border-2 border-blue-300 bg-blue-50">
-              <CardContent className="pt-4">
-                <div className="flex gap-3">
-                  <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <Card className="border-4 border-black bg-blue-100 shadow-[4px_4px_0px_0px_#000]">
+              <CardContent className="pt-6">
+                <div className="flex gap-4">
+                  <AlertCircle className="w-8 h-8 text-black flex-shrink-0" />
                   <div className="text-sm">
-                    <p className="font-semibold mb-1">💡 DRRM Response Principle:</p>
-                    <p className="text-gray-700">
-                      During disasters, coordination with trained agencies (BFP, PNP, AFP, DOH) is critical. 
-                      As Barangay DRRM Officer, your role is to coordinate local response and communicate with 
+                    <p className="font-black text-lg mb-2 uppercase text-blue-900">💡 DRRM Response Principle:</p>
+                    <p className="text-black font-medium leading-relaxed">
+                      During disasters, coordination with trained agencies (BFP, PNP, AFP, DOH) is critical.
+                      As Barangay DRRM Officer, your role is to coordinate local response and communicate with
                       the Municipal DRRMO and NDRRMC. Clear command structure saves lives!
                     </p>
                   </div>

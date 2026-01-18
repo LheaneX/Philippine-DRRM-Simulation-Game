@@ -24,10 +24,10 @@ export function HelpButton() {
           <DialogHeader>
             <DialogTitle className="text-2xl flex items-center gap-2">
               <HelpCircle className="w-6 h-6" />
-              Help & DRRM Reference Guide
+              Safety & DRRM Guide
             </DialogTitle>
             <DialogDescription>
-              Quick reference for disaster management terms and concepts
+              Simple guide for disaster safety terms and words
             </DialogDescription>
           </DialogHeader>
 
@@ -44,78 +44,73 @@ export function HelpButton() {
               <Card>
                 <CardContent className="pt-4 space-y-3 text-sm">
                   <div>
-                    <h3 className="font-bold text-blue-700">DRRM</h3>
+                    <h3 className="font-bold text-blue-700">DRRM (Safety First)</h3>
                     <p className="text-gray-700">
-                      <strong>Disaster Risk Reduction and Management</strong> - A comprehensive approach to 
-                      reducing disaster risks and managing their impacts through prevention, preparedness, 
-                      response, and recovery.
+                      <strong>Disaster Risk Reduction and Management</strong> - This means doing things to
+                      stay safe before, during, and after a disaster. It's about being ready!
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-blue-700">RA 10121</h3>
+                    <h3 className="font-bold text-blue-700">Safety Law (RA 10121)</h3>
                     <p className="text-gray-700">
-                      <strong>Republic Act No. 10121</strong> - The Philippine Disaster Risk Reduction and 
-                      Management Act of 2010. This law established the NDRRMC and mandated DRRM councils 
-                      at all government levels.
+                      <strong>Republic Act No. 10121</strong> - The Philippine law that tells us how to be safe.
+                      It created groups like the NDRRMC to help protect everyone.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-blue-700">BDRRMC</h3>
+                    <h3 className="font-bold text-blue-700">Village Safety Team (BDRRMC)</h3>
                     <p className="text-gray-700">
-                      <strong>Barangay Disaster Risk Reduction and Management Committee</strong> - The 
-                      frontline disaster response team at the barangay level, composed of officials and 
-                      community volunteers.
+                      <strong>Barangay Safety Committee</strong> - The team in your neighborhood
+                      that helps everyone stay safe. They are the first ones to help!
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-blue-700">Go Bag (Grab Bag)</h3>
+                    <h3 className="font-bold text-blue-700">Go Bag (Emergency Bag)</h3>
                     <p className="text-gray-700">
-                      Emergency kit containing essential supplies for at least 72 hours: water, food, 
-                      first aid, important documents, flashlight, radio, medicines, and hygiene items.
+                      A backpack with things you need to survive for 3 days: water, food,
+                      clothes, and other important items. Grab it when you need to leave fast!
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-blue-700">Evacuation Center</h3>
+                    <h3 className="font-bold text-blue-700">Evacuation Center (Safe Place)</h3>
                     <p className="text-gray-700">
-                      Pre-identified safe location (school, barangay hall, gym) where residents go during 
-                      disasters. Must have basic facilities: water, toilets, sleeping area, and cooking area.
+                      A safe building (like a school or gym) where people go when their homes are not safe.
+                      It has water, toilets, and a place to sleep.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-blue-700">RDANA</h3>
+                    <h3 className="font-bold text-blue-700">Damage Check (RDANA)</h3>
                     <p className="text-gray-700">
-                      <strong>Rapid Damage Assessment and Needs Analysis</strong> - Quick assessment 
-                      conducted within 24 hours after a disaster to determine damage, casualties, and 
-                      immediate needs for relief operations.
+                      <strong>Rapid Damage Assessment</strong> - Checking what was broken and who needs help
+                      right after a disaster happens.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-blue-700">Build Back Better (BBB)</h3>
+                    <h3 className="font-bold text-blue-700">Build Back Better</h3>
                     <p className="text-gray-700">
-                      Recovery principle that emphasizes not just rebuilding what was destroyed, but 
-                      making communities more resilient through better planning, stronger structures, 
-                      and risk reduction measures.
+                      When we fix things, we make them stronger than before so they won't break
+                      easily next time.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-blue-700">Storm Surge (Daluyong ng Dagat)</h3>
+                    <h3 className="font-bold text-blue-700">Storm Surge (Big Waves)</h3>
                     <p className="text-gray-700">
-                      Abnormal rise in sea level during typhoons, causing coastal flooding. Can reach 
-                      2-3 meters or higher, extremely dangerous and life-threatening.
+                      When the sea water rises really high during a storm and floods the land.
+                      It is very dangerous!
                     </p>
                   </div>
 
                   <div>
                     <h3 className="font-bold text-blue-700">Hazard Map</h3>
                     <p className="text-gray-700">
-                      Map showing areas prone to specific hazards (flooding, landslides, fault lines, 
+                      Map showing areas prone to specific hazards (flooding, landslides, fault lines,
                       volcanic danger zones). Used for planning evacuation routes and safe zones.
                     </p>
                   </div>
@@ -132,7 +127,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>Philippine Atmospheric, Geophysical and Astronomical Services Administration</strong>
                       <br />
-                      Issues weather forecasts, typhoon warnings, rainfall advisories, and tropical cyclone 
+                      Issues weather forecasts, typhoon warnings, rainfall advisories, and tropical cyclone
                       warning signals. Monitor their bulletins during typhoons and heavy rains.
                     </p>
                   </div>
@@ -142,7 +137,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>Philippine Institute of Volcanology and Seismology</strong>
                       <br />
-                      Monitors earthquakes, volcanoes, and tsunamis. Issues earthquake bulletins, volcano 
+                      Monitors earthquakes, volcanoes, and tsunamis. Issues earthquake bulletins, volcano
                       alert levels, and tsunami advisories. Maintains seismic networks across the country.
                     </p>
                   </div>
@@ -152,7 +147,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>National Disaster Risk Reduction and Management Council</strong>
                       <br />
-                      Main policymaking and coordinating body for disaster management. Leads national 
+                      Main policymaking and coordinating body for disaster management. Leads national
                       response during major disasters, coordinates all agencies and LGUs.
                     </p>
                   </div>
@@ -162,7 +157,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>Department of Health</strong>
                       <br />
-                      Provides medical response, deploys health emergency teams, supplies medicines, 
+                      Provides medical response, deploys health emergency teams, supplies medicines,
                       monitors disease outbreaks, and provides psychosocial support after disasters.
                     </p>
                   </div>
@@ -172,7 +167,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>Department of Social Welfare and Development</strong>
                       <br />
-                      Coordinates relief operations, distributes food packs and assistance, manages 
+                      Coordinates relief operations, distributes food packs and assistance, manages
                       family food packs, provides social services to affected families.
                     </p>
                   </div>
@@ -182,7 +177,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>Bureau of Fire Protection</strong>
                       <br />
-                      Responds to fires, conducts search and rescue operations, assists in evacuations 
+                      Responds to fires, conducts search and rescue operations, assists in evacuations
                       during floods and other disasters. Call 911 or local fire station.
                     </p>
                   </div>
@@ -192,7 +187,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>Philippine National Police</strong>
                       <br />
-                      Maintains peace and order during disasters, assists in evacuations, manages traffic, 
+                      Maintains peace and order during disasters, assists in evacuations, manages traffic,
                       prevents looting, and supports rescue operations.
                     </p>
                   </div>
@@ -202,7 +197,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>Armed Forces of the Philippines</strong>
                       <br />
-                      Provides heavy equipment, helicopters, boats for large-scale rescue and relief 
+                      Provides heavy equipment, helicopters, boats for large-scale rescue and relief
                       operations. Assists in evacuations and clearing operations.
                     </p>
                   </div>
@@ -212,7 +207,7 @@ export function HelpButton() {
                     <p className="text-gray-700">
                       <strong>Local Government Unit / Disaster Risk Reduction and Management Office</strong>
                       <br />
-                      Municipal/City DRRMO coordinates local disaster response, manages evacuation centers, 
+                      Municipal/City DRRMO coordinates local disaster response, manages evacuation centers,
                       and works with barangays. Your direct partner in disaster management.
                     </p>
                   </div>
@@ -240,7 +235,7 @@ export function HelpButton() {
                         <strong>Signal #4:</strong> Winds 118-184 km/h expected in 12 hours - Extremely dangerous, evacuate
                       </div>
                       <div className="bg-red-200 p-2 rounded border border-red-500">
-                        <strong>Signal #5:</strong> Winds >185 km/h expected in 12 hours - Catastrophic, take shelter NOW
+                        <strong>Signal #5:</strong> Winds {'>'}185 km/h expected in 12 hours - Catastrophic, take shelter NOW
                       </div>
                     </div>
                   </div>
@@ -255,7 +250,7 @@ export function HelpButton() {
                         <strong>Orange Warning:</strong> 15-30 mm/hr - Flooding expected, prepare to evacuate
                       </div>
                       <div className="bg-red-100 p-2 rounded border border-red-500">
-                        <strong>Red Warning:</strong> >30 mm/hr - Serious flooding, evacuate immediately
+                        <strong>Red Warning:</strong> {'>'}30 mm/hr - Serious flooding, evacuate immediately
                       </div>
                     </div>
                   </div>

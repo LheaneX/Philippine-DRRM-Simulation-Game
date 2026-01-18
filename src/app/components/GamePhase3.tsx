@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Progress } from '@/app/components/ui/progress';
 import { Badge } from '@/app/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
-import { 
-  Heart, Home, Zap, Droplet, Phone, Package, Activity, ClipboardCheck,
+import {
+  Heart, Home, Zap, Package, Activity, ClipboardCheck,
   TrendingUp, Users, CheckCircle2, AlertCircle, Award
 } from 'lucide-react';
 import { PreparednessData } from './GamePhase1';
@@ -26,7 +25,7 @@ interface RecoveryTask {
   points: number;
 }
 
-export function GamePhase3({ disaster, preparedness, response, onComplete }: GamePhase3Props) {
+export function GamePhase3({ preparedness, response, onComplete }: GamePhase3Props) {
   const [rdanaCompleted, setRdanaCompleted] = useState(false);
   const [infrastructureTasks, setInfrastructureTasks] = useState<RecoveryTask[]>([
     { id: 'power', name: 'Restore Electricity', description: 'Coordinate with electric cooperative', completed: false, points: 15 },
@@ -34,7 +33,7 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
     { id: 'roads', name: 'Clear Roads & Debris', description: 'Remove obstacles for access', completed: false, points: 10 },
     { id: 'comms', name: 'Restore Communications', description: 'Repair cell towers, radios', completed: false, points: 10 }
   ]);
-  
+
   const [reliefDistributed, setReliefDistributed] = useState(false);
   const [medicalCareProvided, setMedicalCareProvided] = useState(false);
   const [psychosocialSupport, setPsychosocialSupport] = useState(false);
@@ -51,7 +50,7 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
 
   const calculateRecoveryScore = () => {
     let score = 0;
-    
+
     if (rdanaCompleted) score += 20;
     score += infrastructureTasks.filter(t => t.completed).reduce((sum, t) => sum + t.points, 0);
     if (reliefDistributed) score += 15;
@@ -59,7 +58,7 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
     if (psychosocialSupport) score += 10;
     if (buildBackBetter) score += 10;
     if (drrmPlanUpdated) score += 10;
-    
+
     return score;
   };
 
@@ -67,11 +66,11 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
     const prepWeight = 30;
     const responseWeight = 40;
     const recoveryWeight = 30;
-    
+
     const prepScore = (preparedness.preparednessScore / 100) * prepWeight;
     const respScore = (response.responseScore / 100) * responseWeight;
     const recovScore = (calculateRecoveryScore() / 100) * recoveryWeight;
-    
+
     return Math.round(prepScore + respScore + recovScore);
   };
 
@@ -90,62 +89,67 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
   const isReadyToComplete = rdanaCompleted && reliefDistributed && infrastructureTasks.filter(t => t.completed).length >= 2;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-6">
+    <div className="min-h-screen bg-[#A7F3D0] p-6 font-['Fredoka']" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-8 bg-white border-4 border-black rounded-3xl p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                <Home className="w-8 h-8 text-green-600" />
+              <h1 className="text-3xl font-black text-black mb-1 flex items-center gap-3 uppercase tracking-tight">
+                <Home className="w-10 h-10 text-green-600 flex-shrink-0" />
                 PHASE 3: AFTER THE DISASTER
               </h1>
-              <p className="text-gray-600">Rehabilitation & Recovery</p>
+              <p className="text-xl font-bold text-gray-700">Rehabilitation & Recovery</p>
             </div>
-            <Badge variant="outline" className="text-lg px-4 py-2">
+            <Badge variant="outline" className="text-xl px-6 py-3 border-4 border-black shadow-[4px_4px_0px_0px_#000] bg-green-100 rounded-xl font-black">
               Recovery Progress: {recoveryProgress}%
             </Badge>
           </div>
-          <Progress value={recoveryProgress} className="h-3" />
+          <div className="h-6 bg-gray-200 rounded-full border-4 border-black overflow-hidden relative">
+            <div
+              className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-500"
+              style={{ width: `${recoveryProgress}%` }}
+            />
+          </div>
         </div>
 
-        <Tabs defaultValue="rdana" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="rdana" className="gap-2">
-              <ClipboardCheck className="w-4 h-4" />
+        <Tabs defaultValue="rdana" className="space-y-6">
+          <TabsList className="flex flex-wrap md:grid w-full h-auto p-2 gap-2 md:grid-cols-5 bg-white border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_#000]">
+            <TabsTrigger value="rdana" className="flex-1 min-w-[45%] md:min-w-0 md:w-full gap-2 py-3 font-bold border-2 border-black data-[state=active]:bg-blue-400 data-[state=active]:shadow-[2px_2px_0px_0px_#000] rounded-xl">
+              <ClipboardCheck className="w-5 h-5" />
               RDANA
             </TabsTrigger>
-            <TabsTrigger value="infrastructure" className="gap-2">
-              <Zap className="w-4 h-4" />
-              Infrastructure
+            <TabsTrigger value="infrastructure" className="flex-1 min-w-[45%] md:min-w-0 md:w-full gap-2 py-3 font-bold border-2 border-black data-[state=active]:bg-yellow-400 data-[state=active]:shadow-[2px_2px_0px_0px_#000] rounded-xl">
+              <Zap className="w-5 h-5" />
+              Infra
             </TabsTrigger>
-            <TabsTrigger value="relief" className="gap-2">
-              <Package className="w-4 h-4" />
+            <TabsTrigger value="relief" className="flex-1 min-w-[45%] md:min-w-0 md:w-full gap-2 py-3 font-bold border-2 border-black data-[state=active]:bg-purple-400 data-[state=active]:shadow-[2px_2px_0px_0px_#000] rounded-xl">
+              <Package className="w-5 h-5" />
               Relief
             </TabsTrigger>
-            <TabsTrigger value="health" className="gap-2">
-              <Heart className="w-4 h-4" />
+            <TabsTrigger value="health" className="flex-1 min-w-[45%] md:min-w-0 md:w-full gap-2 py-3 font-bold border-2 border-black data-[state=active]:bg-pink-400 data-[state=active]:shadow-[2px_2px_0px_0px_#000] rounded-xl">
+              <Heart className="w-5 h-5" />
               Health
             </TabsTrigger>
-            <TabsTrigger value="bbb" className="gap-2">
-              <TrendingUp className="w-4 h-4" />
+            <TabsTrigger value="bbb" className="flex-1 min-w-[45%] md:min-w-0 md:w-full gap-2 py-3 font-bold border-2 border-black data-[state=active]:bg-green-400 data-[state=active]:shadow-[2px_2px_0px_0px_#000] rounded-xl">
+              <TrendingUp className="w-5 h-5" />
               Build Back
             </TabsTrigger>
           </TabsList>
 
           {/* RDANA Tab */}
-          <TabsContent value="rdana" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Rapid Damage Assessment and Needs Analysis (RDANA)</CardTitle>
-                <CardDescription>
+          <TabsContent value="rdana" className="space-y-6">
+            <Card className="border-4 border-black shadow-[8px_8px_0px_0px_#000] rounded-2xl overflow-hidden">
+              <CardHeader className="bg-blue-100 border-b-4 border-black">
+                <CardTitle className="text-2xl font-black uppercase">Rapid Damage Assessment and Needs Analysis (RDANA)</CardTitle>
+                <CardDescription className="text-base font-bold text-gray-700">
                   Systematic assessment of damage and community needs - required by NDRRMC protocols
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                   <h3 className="font-bold mb-3">Assessment Results: Barangay San Roque</h3>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div className="bg-white p-3 rounded">
                       <h4 className="font-semibold mb-2 flex items-center gap-2">
@@ -243,7 +247,7 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                 )}
 
                 <div className="bg-yellow-50 p-3 rounded border border-yellow-300 text-sm">
-                  <strong>📋 NDRRMC Protocol:</strong> RDANA must be conducted within 24 hours after disaster 
+                  <strong>📋 NDRRMC Protocol:</strong> RDANA must be conducted within 24 hours after disaster
                   to assess damage, identify needs, and coordinate relief operations.
                 </div>
               </CardContent>
@@ -251,11 +255,11 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
           </TabsContent>
 
           {/* Infrastructure Tab */}
-          <TabsContent value="infrastructure" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Restore Critical Infrastructure</CardTitle>
-                <CardDescription>
+          <TabsContent value="infrastructure" className="space-y-6">
+            <Card className="border-4 border-black shadow-[8px_8px_0px_0px_#000] rounded-2xl overflow-hidden">
+              <CardHeader className="bg-yellow-100 border-b-4 border-black">
+                <CardTitle className="text-2xl font-black uppercase">Restore Critical Infrastructure</CardTitle>
+                <CardDescription className="text-base font-bold text-gray-700">
                   Coordinate with utility companies and government agencies to restore essential services
                 </CardDescription>
               </CardHeader>
@@ -264,11 +268,10 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                   <div
                     key={task.id}
                     onClick={() => toggleInfrastructureTask(task.id)}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                      task.completed
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-gray-300 hover:border-blue-400'
-                    }`}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${task.completed
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-300 hover:border-blue-400'
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       {task.completed ? (
@@ -288,7 +291,7 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                 ))}
 
                 <div className="bg-blue-50 p-4 rounded border border-blue-200 text-sm">
-                  <strong>⚡ Recovery Priority:</strong> Restore critical infrastructure (water, power, roads, communications) 
+                  <strong>⚡ Recovery Priority:</strong> Restore critical infrastructure (water, power, roads, communications)
                   to enable relief operations and help community return to normal life.
                 </div>
               </CardContent>
@@ -296,11 +299,11 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
           </TabsContent>
 
           {/* Relief Tab */}
-          <TabsContent value="relief" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Coordinate Relief Distribution</CardTitle>
-                <CardDescription>
+          <TabsContent value="relief" className="space-y-6">
+            <Card className="border-4 border-black shadow-[8px_8px_0px_0px_#000] rounded-2xl overflow-hidden">
+              <CardHeader className="bg-purple-100 border-b-4 border-black">
+                <CardTitle className="text-2xl font-black uppercase">Coordinate Relief Distribution</CardTitle>
+                <CardDescription className="text-base font-bold text-gray-700">
                   Work with DSWD and NGOs for systematic and equitable relief distribution
                 </CardDescription>
               </CardHeader>
@@ -310,7 +313,7 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                     <Package className="w-5 h-5 text-blue-600" />
                     Relief Distribution Plan
                   </h3>
-                  
+
                   <div className="space-y-3 text-sm">
                     <div className="bg-blue-50 p-3 rounded">
                       <p className="font-semibold mb-1">Phase 1: Emergency Relief (Days 1-3)</p>
@@ -356,7 +359,7 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                 )}
 
                 <div className="bg-yellow-50 p-3 rounded border border-yellow-300 text-sm">
-                  <strong>📦 DSWD Guidelines:</strong> Relief must be distributed equitably, with priority to 
+                  <strong>📦 DSWD Guidelines:</strong> Relief must be distributed equitably, with priority to
                   the most vulnerable. Keep detailed records for transparency and accountability.
                 </div>
               </CardContent>
@@ -364,11 +367,11 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
           </TabsContent>
 
           {/* Health Tab */}
-          <TabsContent value="health" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Health & Psychosocial Support</CardTitle>
-                <CardDescription>
+          <TabsContent value="health" className="space-y-6">
+            <Card className="border-4 border-black shadow-[8px_8px_0px_0px_#000] rounded-2xl overflow-hidden">
+              <CardHeader className="bg-pink-100 border-b-4 border-black">
+                <CardTitle className="text-2xl font-black uppercase">Health & Psychosocial Support</CardTitle>
+                <CardDescription className="text-base font-bold text-gray-700">
                   Provide medical care and mental health support to affected communities
                 </CardDescription>
               </CardHeader>
@@ -376,11 +379,10 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div
                     onClick={() => setMedicalCareProvided(true)}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                      medicalCareProvided
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-gray-300 hover:border-blue-400'
-                    }`}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${medicalCareProvided
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-300 hover:border-blue-400'
+                      }`}
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <Activity className="w-8 h-8 text-red-600" />
@@ -402,11 +404,10 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
 
                   <div
                     onClick={() => setPsychosocialSupport(true)}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                      psychosocialSupport
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-gray-300 hover:border-blue-400'
-                    }`}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${psychosocialSupport
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-300 hover:border-blue-400'
+                      }`}
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <Heart className="w-8 h-8 text-pink-600" />
@@ -428,8 +429,8 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                 </div>
 
                 <div className="bg-pink-50 p-4 rounded border border-pink-200 text-sm">
-                  <strong>❤️ Mental Health Matters:</strong> Disasters cause psychological trauma. DOH and DSWD 
-                  recommend psychosocial first aid, counseling, and community activities to help people recover 
+                  <strong>❤️ Mental Health Matters:</strong> Disasters cause psychological trauma. DOH and DSWD
+                  recommend psychosocial first aid, counseling, and community activities to help people recover
                   emotionally, not just physically.
                 </div>
               </CardContent>
@@ -437,11 +438,11 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
           </TabsContent>
 
           {/* Build Back Better Tab */}
-          <TabsContent value="bbb" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Build Back Better (BBB)</CardTitle>
-                <CardDescription>
+          <TabsContent value="bbb" className="space-y-6">
+            <Card className="border-4 border-black shadow-[8px_8px_0px_0px_#000] rounded-2xl overflow-hidden">
+              <CardHeader className="bg-green-100 border-b-4 border-black">
+                <CardTitle className="text-2xl font-black uppercase">Build Back Better (BBB)</CardTitle>
+                <CardDescription className="text-base font-bold text-gray-700">
                   Implement lessons learned and strengthen resilience for future disasters
                 </CardDescription>
               </CardHeader>
@@ -451,7 +452,7 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                   <p className="text-sm text-gray-700 mb-3">
                     Don't just rebuild - make communities safer and more resilient than before!
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                     <div className="bg-white p-3 rounded">
                       <h4 className="font-semibold mb-2 text-blue-700">🏗️ Structural Improvements</h4>
@@ -497,11 +498,10 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
 
                 <div
                   onClick={() => setBuildBackBetter(true)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    buildBackBetter
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-300 hover:border-blue-400'
-                  }`}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${buildBackBetter
+                    ? 'border-green-500 bg-green-50'
+                    : 'border-gray-300 hover:border-blue-400'
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -520,11 +520,10 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
 
                 <div
                   onClick={() => setDrrmPlanUpdated(true)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    drrmPlanUpdated
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-300 hover:border-blue-400'
-                  }`}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${drrmPlanUpdated
+                    ? 'border-green-500 bg-green-50'
+                    : 'border-gray-300 hover:border-blue-400'
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -542,8 +541,8 @@ export function GamePhase3({ disaster, preparedness, response, onComplete }: Gam
                 </div>
 
                 <div className="bg-blue-50 p-3 rounded border border-blue-200 text-sm">
-                  <strong>🔄 Continuous Improvement:</strong> RA 10121 requires regular review and updating 
-                  of DRRM plans based on new experiences, hazards, and vulnerabilities. Learning from each 
+                  <strong>🔄 Continuous Improvement:</strong> RA 10121 requires regular review and updating
+                  of DRRM plans based on new experiences, hazards, and vulnerabilities. Learning from each
                   disaster makes us more resilient!
                 </div>
               </CardContent>
