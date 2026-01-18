@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Shield, BookOpen, Play, Settings, History, Volume2, VolumeX, Trash2 } from 'lucide-react';
+import { Shield, BookOpen, Play, Settings, History, Volume2, VolumeX, Trash2, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { soundManager } from '@/app/utils/sound';
@@ -320,9 +320,10 @@ export function GameIntro({ onStartGame, onStartTutorial, history = [], onClearH
           </DialogHeader>
 
           <Tabs defaultValue="settings">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="settings">Settings</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
+              <TabsTrigger value="about">About</TabsTrigger>
             </TabsList>
 
             <TabsContent value="settings" className="space-y-4 py-4">
@@ -369,6 +370,70 @@ export function GameIntro({ onStartGame, onStartTutorial, history = [], onClearH
                   Clear History
                 </Button>
               )}
+            </TabsContent>
+
+            <TabsContent value="about" className="space-y-4 py-4">
+              <div className="space-y-4">
+                {/* App Information */}
+                <div className="p-4 border-4 border-black rounded-xl bg-blue-50 shadow-[4px_4px_0px_0px_#000]">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Info className="w-6 h-6 text-blue-600" />
+                    <h4 className="font-black text-lg uppercase">App Information</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <p className="font-bold text-gray-700">Name:</p>
+                      <p className="text-gray-900">Philippine DRRM Simulation Game</p>
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-700">Version:</p>
+                      <p className="text-gray-900">1.0.0</p>
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-700">Purpose:</p>
+                      <p className="text-gray-900">Educational simulation for Disaster Risk Reduction and Management</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Developer Information */}
+                <div className="p-4 border-4 border-black rounded-xl bg-green-50 shadow-[4px_4px_0px_0px_#000]">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Shield className="w-6 h-6 text-green-600" />
+                    <h4 className="font-black text-lg uppercase">Developer</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <p className="font-bold text-gray-700">Developed by:</p>
+                      <p className="text-gray-900 font-semibold text-base">John Denver D. Macaraig</p>
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-700">Framework:</p>
+                      <p className="text-gray-900">React + Vite + TypeScript</p>
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-700">Design:</p>
+                      <p className="text-gray-900">Neo-Brutalist UI</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Credits */}
+                <div className="p-4 border-4 border-black rounded-xl bg-yellow-50 shadow-[4px_4px_0px_0px_#000]">
+                  <div className="flex items-center gap-3 mb-3">
+                    <BookOpen className="w-6 h-6 text-yellow-600" />
+                    <h4 className="font-black text-lg uppercase">Credits</h4>
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    <p>Based on Philippine DRRM guidelines and protocols from:</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1">
+                      <li>NDRRMC (National Disaster Risk Reduction and Management Council)</li>
+                      <li>OCD (Office of Civil Defense)</li>
+                      <li>PAGASA, PHIVOLCS, DSWD, DOH</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </DialogContent>
